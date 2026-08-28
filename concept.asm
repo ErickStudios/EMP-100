@@ -15,3 +15,4 @@
     CHB $VV ; b = $VV               09 VV
     CTA $VV ; [page:$VV] = a        0a 0r
     BCC $VV ; ip=CF?page:$VV : ip   0B VV
+    CDA $VV ; a = [page:$VV]        0C VV

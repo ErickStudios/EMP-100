@@ -62,8 +62,8 @@ always @(posedge clk or posedge rst) begin
         adr <= 16'h0000;
         wvx <= 8'h00;
     end else if (exi) begin
-        rex <= 1'b0;
-        wex <= 1'b0;
+        if (rex == 1) rex <= 1'b0;
+        if (wex == 1) wex <= 1'b0;
         ix <= 1'b0;
 
         if (jf == 1) begin
@@ -119,7 +119,7 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                 end
 
-                // 03 1r: SBB r (a = a - r + CF o estándar a - r - borrow, según tu definición: a = a - r + CF)
+                // 03 1r: SBB r (a = a - r + CF)
                 8'b0011_100?: begin
                     ar <= ar - getReg(reg_r) + {7'b0, rcf};
                     ix <= 1'b1;
@@ -190,6 +190,12 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                 end
 
+                // 0c VV: CDA $VV (a = [page:$VV])
+                8'h0c: begin
+                    adr <= {pr, imm_vv};
+                    rex <= 1'b1;
+                    ir  <= 1;
+                end
 
                 default: begin
                     ix <= 1'b1;

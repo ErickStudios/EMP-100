@@ -1,18 +1,38 @@
 
-    local 0F000h ; en ROM
+    local 0C000h ; en ROM
     
-    BANK_CFG equ 2000h
+    BANK_CFG equ 0A000h
+    SP_OFF   equ 0A100h
+    SP_PAG   equ 0A101h
+    BL_REG   equ 0A102h
+    RT_REG   equ 0A103h
 
 DR: db 0
 ER: db 0
 HR: db 0
 
 reset:
-    PAG $DR.h
-    CTA $DR.l
+    CHA $0FFh
+    PAG $SP_PAG.h
+    CTA $SP_PAG.l
+    CHA $02Fh
+    CTA $SP_OFF.l
 
-    reserve (0FF0h-$)
+    CTA $BL_REG.l
+
+    PAG $proce.h
+    BCC $proce.l
+
+aloop:
+    PAG $aloop.h
+    BCC $aloop.l
+
+proce:
+    PAG $RT_REG.h
+    CTA $RT_REG.l
+
+    reserve (3FF0h-$)
     STC
     PAG $reset.h
     BCC $reset.l
-    reserve (1000h-$)
+    reserve (4000h-$)
