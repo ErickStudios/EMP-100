@@ -8,7 +8,7 @@
     PAG $VV ; page = 0xVV           04 VV
     STA r   ; [page:r] = a          05 0r
     LDA r   ; a = [page:r]          05 1r
-    MDC r   ; a = [page:r]          05 2r
+    LDB r   ; b = [page:r]          05 2r
     CHA $VV ; a = $VV               06 VV
     LDC $VV ; CF = FLGS[VV]         07 VV
     BRC r   ; ip = CF ? page:r : ip 08 0r

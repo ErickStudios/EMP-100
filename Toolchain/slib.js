@@ -164,6 +164,9 @@ export function LineAsm(line, context) {
         if (nam == 'LDA') {
             return [0x05, [0x1, 'r']];
         }
+        if (nam == 'LDB') {
+            return [0x05, [0x2, 'r']];
+        }
         if (nam == 'CDA') {
             return [0x0c, 'n'];
         }
