@@ -51,7 +51,7 @@ module tb;
         else begin
             if (!exi) begin
                 exi = 1;
-                $display("PC: %h | INS: %h", pc, ins);
+                //$display("PC: %h | INS: %h", pc, ins);
             end
             else if (exi) begin
                 if (wex) begin
@@ -61,6 +61,8 @@ module tb;
                     if (adr == 16'hA102) bl_f = 1;
                     if (adr == 16'hA103) begin
                         sp = sp + 2;
+                        $display("PC: %h | RET: pc = %h sp = %h", pc, {ram[sp], ram[sp+1]}, sp);
+
                         pc = {ram[sp], ram[sp+1]};
                     end
                 end
@@ -69,6 +71,7 @@ module tb;
                         bl_f = 0;
                         ram[sp] = pc[15:8];
                         ram[sp+1] = pc[7:0];
+                        $display("PC: %h | BLR: pc = %h sp = %h", pc, adr, sp);
                         sp = sp - 2;
                     end
                     pc = adr;
@@ -89,7 +92,7 @@ module tb;
 
         #20 rst = 0;
 
-        #400 $finish;
+        #3200 $finish;
     end
 
 endmodule

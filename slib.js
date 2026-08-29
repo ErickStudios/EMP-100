@@ -118,7 +118,8 @@ export function LineAsm(line, context) {
             C: 2,
             P: 3,
             X: 4,
-            Y: 5
+            Y: 5,
+            Z: 6
         })[name.toUpperCase()];
     }
     function getFlagOf(name) {
@@ -163,6 +164,9 @@ export function LineAsm(line, context) {
         }
         if (nam == 'CHB') {
             return [0x09, 'n'];
+        }
+        if (nam == 'CHZ') {
+            return [0x0E, 'n'];
         }
         if (nam == 'CHC') {
             return [0x0D, 'n'];
@@ -320,6 +324,12 @@ export function LineAsm(line, context) {
             consume();
             let sx = parseSyntx();
             result.push(...(new Array(sx).fill(0)));
+        }
+        else if (peek().value == '.') {
+            consume();
+            let ident = consume().value;
+            expect(":");
+            context.symbs.set(context.currentLabel + '.' + ident, context.currentIp);
         }
         else if (peek().type == 'identifier') {
             let ident = consume().value;

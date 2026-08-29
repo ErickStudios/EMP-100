@@ -15,9 +15,20 @@ reset:
     CHA $0FFh
     PAG $SP_PAG.h
     CTA $SP_PAG.l
-    CHA $02Fh
+    CHA $01Fh
     CTA $SP_OFF.l
 
+    PAG $SP_PAG.h
+    CTA $BL_REG.l
+    
+    CHA $10
+    CHB $10
+    PAG $mul.h
+    BCC $mul.l
+
+    STA %p
+
+    PAG $SP_PAG.h
     CTA $BL_REG.l
 
     PAG $proce.h
@@ -27,23 +38,29 @@ aloop:
     PAG $aloop.h
     BCC $aloop.l
 
-; c = a * b
+; a = a * b
 mul:
-    CPB
     CPC
-    MVA %b
-    CPX
-    CHA $1
     CPY
-.loop:
-    MVA %b
-    ZRC
-    ADC %c
-    CPB
-    MVA %x
-    SBB %y
     CPX
-    
+.loop:
+    ZRC
+    MVA %x
+    ADC %y
+    CPX
+    MVA %b
+    CHZ $1
+    SBB %z
+    CPB
+    CHZ $1
+    TSA %z
+    LDC $4
+    PAG $.loop.h
+    BCC $.loop.l
+
+    MVA %x
+    PAG $RT_REG.h
+    CTA $RT_REG.l
 
 proce:
     PAG $RT_REG.h

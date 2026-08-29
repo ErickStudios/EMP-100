@@ -19,6 +19,7 @@ reg [7:0]   cr; // unnamed
 reg [7:0]   pr; // page
 reg [7:0]   xr;
 reg [7:0]   yr;
+reg [7:0]   zr;
 reg [7:0]   fr; // flags
 reg         ir; // in reading
 reg [7:0]   tr; // tmp
@@ -40,6 +41,7 @@ function [7:0] getReg(input [3:0] id);
     4'h3: getReg = pr;
     4'h4: getReg = xr;
     4'h5: getReg = yr;
+    4'h6: getReg = zr;
     default: getReg = 8'h00;
     endcase
 endfunction
@@ -53,6 +55,7 @@ begin
     4'h3: pr = val;
     4'h4: xr = val;
     4'h5: yr = val;
+    4'h6: zr = val;
     endcase
 end
 endtask
@@ -90,6 +93,7 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                     if (ins[7:4] == 4'h0) begin
                         tr = ar - getReg(reg_r);
+                        //$display(tr, ar, getReg(reg_r));
                         fr[1] = 0;
                         if (tr == 0) begin 
                             fr[1] = 1;
@@ -114,7 +118,7 @@ always @(posedge clk or posedge rst) begin
                 end
 
                 // 01 0r: CPr (r = a)
-                8'b0001_000?: begin
+                8'h01: begin
                     setRegister(reg_r, ar);
                     ix <= 1'b1;
                 end
@@ -128,16 +132,18 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                 end
 
-                // 03 0r: ADC r (a = a + r + CF)
-                8'b0011_000?: begin
-                    {fr[0], ar} <= ar + getReg(reg_r) + {7'b0, rcf};
-                    ix <= 1'b1;
-                end
-
-                // 03 1r: SBB r (a = a - r + CF)
-                8'b0011_100?: begin
-                    ar <= ar - getReg(reg_r) + {7'b0, rcf};
-                    ix <= 1'b1;
+                // 03 0r: ADC/SBB r (a = a +/- r +/- CF)
+                8'h03: begin
+                    // 03 0r: ADC r (a = a + r + CF)
+                    if (ins[7:4] == 4'h0) begin
+                        {fr[0], ar} <= ar + getReg(reg_r) + {7'b0, rcf};
+                        ix <= 1'b1;
+                    end
+                    // 03 1r: SBB r (a = a - r + CF)
+                    else if (ins[7:4] == 4'h1) begin
+                        ar <= ar - getReg(reg_r) + {7'b0, rcf};
+                        ix <= 1'b1;
+                    end
                 end
 
                 // 04 VV: PAG $VV (page = 0xVV)
@@ -223,6 +229,12 @@ always @(posedge clk or posedge rst) begin
                 8'h0d: begin
                     ix <= 1'b1;
                     cr <= imm_vv;
+                end
+
+                // 0E VV: CHZ v (z = v)
+                8'h0e: begin
+                    ix <= 1'b1;
+                    zr <= imm_vv;
                 end
 
                 default: begin
