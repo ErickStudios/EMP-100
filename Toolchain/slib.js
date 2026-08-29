@@ -112,10 +112,10 @@ export function LineAsm(line, context) {
         return a;
     }
     function getRegOf(name) {
-        return ({A: 0,B: 1,C: 2,P: 3,X: 4,Y: 5,Z: 6})[name.toUpperCase()];
+        return ({A:0,B:1,C:2,P:3,X:4,Y:5,Z:6})[name.toUpperCase()];
     }
     function getFlagOf(name) {
-        return ({C: 0,})[name.toUpperCase()];
+        return ({C:0,})[name.toUpperCase()];
     }
     function getOpcodeOf(name) {
         let nam = name.toUpperCase();
@@ -193,7 +193,7 @@ export function LineAsm(line, context) {
     function parseStructured(str, bd=8) {
         return str.map(v => {
             if (Array.isArray(v)) {
-                let bs = parseStructured(v,bd/2);
+			let bs = parseStructured(v,bd/2);
                 let ata = 0;
                 bs.forEach(c => {
                     ata = (ata << (bd/2)) | Number(c);
