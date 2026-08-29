@@ -116,7 +116,9 @@ export function LineAsm(line, context) {
             A: 0,
             B: 1,
             C: 2,
-            P: 3
+            P: 3,
+            X: 4,
+            Y: 5
         })[name.toUpperCase()];
     }
     function getFlagOf(name) {
@@ -162,6 +164,9 @@ export function LineAsm(line, context) {
         if (nam == 'CHB') {
             return [0x09, 'n'];
         }
+        if (nam == 'CHC') {
+            return [0x0D, 'n'];
+        }
         if (nam == 'LDA') {
             return [0x05, [0x1, 'r']];
         }
@@ -204,19 +209,20 @@ export function LineAsm(line, context) {
             else if (v == 'n') {
                 expect("$", 'expected number');
                 if (peek().type != 'number') {
-                    let na = consume().value;
+                    let inf = {};
+                    let na = parseSyntx(inf);
+                    if (inf.label) na += context.org;
                     if (peek() && peek().value == '.') {
                         consume();
                         let pat = consume().value.toUpperCase();
-                        let atb = context.equals.has(na) ? context.equals.get(na) :context.symbs.get(na) + context.org;
                         if (pat == 'H') {
-                            return (atb >> 8) & 0xFF;
+                            return (na >> 8) & 0xFF;
                         }
                         else if (pat == 'L') {
-                            return atb & 0xFF;
+                            return na & 0xFF;
                         }
                     }
-                    return context.equals.has(na) ? context.equals.get(na) : context.symbs.get(na);
+                    return na;
                 }
                 return Number(consume().value);
             }
@@ -238,7 +244,8 @@ export function LineAsm(line, context) {
 
         }
     }
-    function parseSyntx() {
+    function parseSyntx(info={}) {
+        info.label = false;
         if (peek().value == '(') {
             consume();
             let result = parseSyntx();
@@ -256,10 +263,15 @@ export function LineAsm(line, context) {
         }
         if (peek().value == '.') {
             consume();
+            info.label = true;
             return context.symbs.get(context.currentLabel + '.' + consume().value);
+        }
+        if (context.equals.has(peek().value)) {
+            return context.equals.get(consume().value);
         }
         if (peek().value == '$') {
             consume();
+            info.label = true;
             return context.currentIp;
         }
         if (peek().value == 'offs8') {
@@ -272,6 +284,7 @@ export function LineAsm(line, context) {
             return syn & 0xFF;
         }
         if (context.symbs.has(peek().value)) {
+            info.label = true;
             return context.symbs.get(consume().value);
         }
         if (peek().type !== 'number') {

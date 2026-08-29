@@ -27,6 +27,24 @@ aloop:
     PAG $aloop.h
     BCC $aloop.l
 
+; c = a * b
+mul:
+    CPB
+    CPC
+    MVA %b
+    CPX
+    CHA $1
+    CPY
+.loop:
+    MVA %b
+    ZRC
+    ADC %c
+    CPB
+    MVA %x
+    SBB %y
+    CPX
+    
+
 proce:
     PAG $RT_REG.h
     CTA $RT_REG.l

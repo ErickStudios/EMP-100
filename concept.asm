@@ -1,4 +1,3 @@
-
     TSA r   ; a test r              00 0r
     MVA r   ; a = r                 00 1r
     CPr     ; r = a                 01 0r
@@ -9,6 +8,7 @@
     PAG $VV ; page = 0xVV           04 VV
     STA r   ; [page:r] = a          05 0r
     LDA r   ; a = [page:r]          05 1r
+    MDC r   ; a = [page:r]          05 2r
     CHA $VV ; a = $VV               06 VV
     LDC $VV ; CF = FLGS[VV]         07 VV
     BRC r   ; ip = CF ? page:r : ip 08 0r
@@ -16,3 +16,4 @@
     CTA $VV ; [page:$VV] = a        0a 0r
     BCC $VV ; ip=CF?page:$VV : ip   0B VV
     CDA $VV ; a = [page:$VV]        0C VV
+    CHC $VV ; c = $VV               0D VV

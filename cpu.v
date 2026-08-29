@@ -17,9 +17,12 @@ reg [7:0]   ar; // acumulador
 reg [7:0]   br; // helper acum
 reg [7:0]   cr; // unnamed
 reg [7:0]   pr; // page
+reg [7:0]   xr;
+reg [7:0]   yr;
 reg [7:0]   fr; // flags
 reg         ir; // in reading
 reg [7:0]   tr; // tmp
+reg         b_rec;
 
 // flags
 wire        rcf; // carry flag
@@ -35,6 +38,8 @@ function [7:0] getReg(input [3:0] id);
     4'h1: getReg = br;
     4'h2: getReg = cr;
     4'h3: getReg = pr;
+    4'h4: getReg = xr;
+    4'h5: getReg = yr;
     default: getReg = 8'h00;
     endcase
 endfunction
@@ -46,6 +51,8 @@ begin
     4'h1: br = val;
     4'h2: cr = val;
     4'h3: pr = val;
+    4'h4: xr = val;
+    4'h5: yr = val;
     endcase
 end
 endtask
@@ -72,7 +79,8 @@ always @(posedge clk or posedge rst) begin
     
         if (ir == 1) begin
             ir <= 0;
-            ar  <= rvx;
+            if (b_rec) br  <= rvx;
+            else ar  <= rvx;
             ix <= 1'b0;
         end
         else begin
@@ -83,7 +91,14 @@ always @(posedge clk or posedge rst) begin
                     if (ins[7:4] == 4'h0) begin
                         tr = ar - getReg(reg_r);
                         fr[1] = 0;
-                        if (tr == 0) fr[1] = 1;
+                        if (tr == 0) begin 
+                            fr[1] = 1;
+                            fr[4] = 0;
+                        end
+                        else begin
+                            fr[1] = 0;
+                            fr[4] = 1;
+                        end
                         if (tr[7] == 1) begin 
                             fr[2] = 1;
                             fr[3] = 0;
@@ -131,19 +146,26 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                 end
 
-                // 05 0r: STA r ([page:r] = a)
-                8'b0101_000?: begin
-                    adr <= {pr, getReg(reg_r)};
-                    wvx <= ar;
-                    wex <= 1'b1;
-                    ix <= 1'b1;
-                end
-
-                // 05 1r: LDA r (a = [page:r])
-                8'b0101_100?: begin
-                    adr <= {pr, getReg(reg_r)};
-                    rex <= 1'b1;
-                    ir  <= 1;
+                // 05 ?r: STA/LDA/MDC r ([page:r] = a // a/b = [page[r]])
+                8'h05: begin
+                    if (ins[7:4] == 4'h0) begin
+                        adr <= {pr, getReg(reg_r)};
+                        wvx <= ar;
+                        wex <= 1'b1;
+                        ix <= 1'b1;
+                    end
+                    else if (ins[7:4] == 4'h1) begin
+                        b_rec = 0;
+                        adr <= {pr, getReg(reg_r)};
+                        rex <= 1'b1;
+                        ir  <= 1;
+                    end
+                    else if (ins[7:4] == 4'h2) begin
+                        b_rec = 1;
+                        adr <= {pr, getReg(reg_r)};
+                        rex <= 1'b1;
+                        ir  <= 1;
+                    end
                 end
 
                 // 06 1r: CHA v (a = v)
@@ -195,6 +217,12 @@ always @(posedge clk or posedge rst) begin
                     adr <= {pr, imm_vv};
                     rex <= 1'b1;
                     ir  <= 1;
+                end
+
+                // 0D 1r: CHC v (c = v)
+                8'h0d: begin
+                    ix <= 1'b1;
+                    cr <= imm_vv;
                 end
 
                 default: begin
