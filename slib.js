@@ -112,20 +112,10 @@ export function LineAsm(line, context) {
         return a;
     }
     function getRegOf(name) {
-        return ({
-            A: 0,
-            B: 1,
-            C: 2,
-            P: 3,
-            X: 4,
-            Y: 5,
-            Z: 6
-        })[name.toUpperCase()];
+        return ({A: 0,B: 1,C: 2,P: 3,X: 4,Y: 5,Z: 6})[name.toUpperCase()];
     }
     function getFlagOf(name) {
-        return ({
-            C: 0,
-        })[name.toUpperCase()];
+        return ({C: 0,})[name.toUpperCase()];
     }
     function getOpcodeOf(name) {
         let nam = name.toUpperCase();
@@ -245,7 +235,6 @@ export function LineAsm(line, context) {
         case 'dq': return 8;
         case 'byte': return 1;
         case 'word': return 2;
-
         }
     }
     function parseSyntx(info={}) {
