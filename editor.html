@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenguaje Personalizado en Monaco Editor</title>
+    <style>
+        #editor-container {
+            width: 800px;
+            height: 500px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="editor-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            
+            // 1. Registrar el ID del nuevo lenguaje
+            monaco.languages.register({ id: 'mi-lenguaje' });
+
+            // 2. Definir las reglas de resaltado de sintaxis (Monarch tokens)
+            monaco.languages.setMonarchTokensProvider('mi-lenguaje', {
+                operators: [
+                    '=', '==', '!=', '+', '-', '*', '/'
+                ],
+
+                symbols: /[=><!~?:&|+\-*\/\^%]+/,
+
+                tokenizer: {
+                    root: [
+                        // Primero los números/direcciones con sufijo o prefijo de símbolo para que no los tome como texto
+                        [/\$[a-zA-Z0-9_.]+h?/i, 'number'],
+                        [/\b\d+h?\b/i, 'number'],
+                        [/\b\w+\b\:/i, 'variable'],
+                        [/\%\w+h?/i, 'variable'],
+
+                        [/\b(tsa|mva|cpa|cpb|cpc|cpx|cpy|cpz|zrc|stc|adc|sbb|pag|sta|lda|mdc|cha|ldc|brc|chb|cta|bcc|cda|chc)\b/i, 'keyword'],
+
+                        // Comentarios
+                        [/;[^\n]*$/, 'comment'],
+
+                        // Cadenas de texto
+                        [/"([^"\\]|\\.)*$/, 'string.invalid'],
+                        [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
+                        
+                        [/\b\w+\b/, 'keyword']
+                        
+                    ],
+
+                    string: [
+                        [/[^"\\]+/, 'string'],
+                        [/\\./, 'string.escape'],
+                        [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
+                    ]
+                }
+            });
+
+            // 3. Registrar autocompletado (IntelliSense) personalizado
+            monaco.languages.registerCompletionItemProvider('mi-lenguaje', {
+                provideCompletionItems: function(model, position) {
+                    var suggestions = [
+                        {
+                            label: 'lda',
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: 'lda $${1:direccion}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Carga un valor en el acumulador'
+                        },
+                        {
+                            label: 'sta',
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: 'sta $${1:direccion}',
+                            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                            documentation: 'Almacena el acumulador en memoria'
+                        }
+                    ];
+                    return { suggestions: suggestions };
+                }
+            });
+
+            // 4. Crear la instancia del editor usando tu nuevo lenguaje
+            var editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: [
+                    '# Configuración inicial del programa',
+                    'lda $00FFh',
+                    'sta $10h',
+                    'tsa'
+                ].join('\n'),
+                language: 'mi-lenguaje',
+                theme: 'vs-dark'
+            });
+        });
+    </script>
+</body>
+</html>

@@ -53,8 +53,9 @@ mul:
     SBB %z
     CPB
     CHZ $1
-    TSA %z
-    LDC $4
+    TSA %z 
+    LDC $4  ; cargar flag de not equal
+    
     PAG $.loop.h
     BCC $.loop.l
 
