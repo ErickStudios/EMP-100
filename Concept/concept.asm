@@ -17,3 +17,4 @@
     BCC $VV ; ip=CF?page:$VV : ip   0B VV
     CDA $VV ; a = [page:$VV]        0C VV
     CHC $VV ; c = $VV               0D VV
+    CHZ $VV ; z = $VV               0E VV
