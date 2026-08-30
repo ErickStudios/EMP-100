@@ -19,7 +19,9 @@ module tb;
     reg  [15:0] sp;
     reg         bl_f; // br link flag
 
-    cpu uut (
+    cpu #(
+        .MODEL_TYPE(100)
+    ) uut (
         .rex(rex),
         .wex(wex),
         .adr(adr),

@@ -1,8 +1,8 @@
     TSA r   ; a test r              00 0r
     MVA r   ; a = r                 00 1r
     CPr     ; r = a                 01 0r
-    ZRC     ; CF = 0                02 00
-    STC     ; CF = 1                02 10
+    ZRf     ; fF = 0                02 0f
+    STf     ; fF = 1                02 1f
     ADC r   ; a = a + r + CF        03 0r
     SBB r   ; a = a - r + CF        03 1r
     SHR r   ; a = a >> r            03 2r
@@ -22,3 +22,5 @@
     CDA $VV ; a = [page:$VV]        0C VV
     CHC $VV ; c = $VV               0D VV
     CHZ $VV ; z = $VV               0E VV
+    SSA r   ; a = [page:r]; r++/--  0F 0r (EMP-1000+)
+    SLA r   ; [page:r] = a; r++/--  0F 1r (EMP-1000+)

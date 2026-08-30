@@ -1,4 +1,6 @@
-module cpu(
+module cpu #(
+    parameter MODEL_TYPE = 100
+)(
     output reg         rex,
     output reg         wex,
     output reg  [15:0] adr,
@@ -124,12 +126,12 @@ always @(posedge clk or posedge rst) begin
                     ix <= 1'b1;
                 end
 
-                // 02 00: ZRC (CF = 0)
+                // 02 00: ZRf/STf (fF = 0/1)
                 8'h02: begin
-                    if (imm_vv == 8'h00) 
-                        fr[0] <= 1'b0; // ZRC
-                    else if (imm_vv == 8'h10) 
-                        fr[0] <= 1'b1; // STC
+                    if (ins[7:4] == 8'h0) 
+                        fr[reg_r] <= 1'b0; // ZRf
+                    else if (ins[7:4] == 8'h1) 
+                        fr[reg_r] <= 1'b1; // STf
                     ix <= 1'b1;
                 end
 
@@ -258,6 +260,41 @@ always @(posedge clk or posedge rst) begin
                 8'h0e: begin
                     ix <= 1'b1;
                     zr <= imm_vv;
+                end
+
+                8'h0F: begin
+                    if (MODEL_TYPE >= 1000) begin
+                        if (ins[7:4] == 4'h0) begin
+                            adr <= {pr, getReg(reg_r)};
+                            wvx <= ar;
+                            if (fr[6]) 
+                                setRegister(reg_r, getReg(reg_r) + 1);
+                            else 
+                                setRegister(reg_r, getReg(reg_r) - 1);
+                            wex <= 1'b1;
+                            ix <= 1'b1;
+                        end
+                        else if (ins[7:4] == 4'h1) begin
+                            b_rec = 0;
+                            adr <= {pr, getReg(reg_r)};
+                            if (fr[6]) 
+                                setRegister(reg_r, getReg(reg_r) + 1);
+                            else 
+                                setRegister(reg_r, getReg(reg_r) - 1);
+                            rex <= 1'b1;
+                            ir  <= 1;
+                        end
+                        else if (ins[7:4] == 4'h2) begin
+                            b_rec = 1;
+                            adr <= {pr, getReg(reg_r)};
+                            if (fr[6]) 
+                                setRegister(reg_r, getReg(reg_r) + 1);
+                            else 
+                                setRegister(reg_r, getReg(reg_r) - 1);
+                            rex <= 1'b1;
+                            ir  <= 1;
+                        end
+                    end
                 end
 
                 default: begin

@@ -115,7 +115,7 @@ export function LineAsm(line, context) {
         return ({A:0,B:1,C:2,P:3,X:4,Y:5,Z:6})[name.toUpperCase()];
     }
     function getFlagOf(name) {
-        return ({C:0,})[name.toUpperCase()];
+        return ({C:0,D:6,})[name.toUpperCase()];
     }
     function getOpcodeOf(name) {
         let nam = name.toUpperCase();
