@@ -2,7 +2,7 @@
   <img src="EMP100L.svg" alt="Logo" width="300">
 </div>
 
-# EMP-Arh
+# EMP-Arch
 ##### Embedded. Markarian. Processors. Architecture
 
 Los EMP son procesadores de 8 bits portatiles y simples
