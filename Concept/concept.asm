@@ -22,5 +22,7 @@
     CDA $VV ; a = [page:$VV]        0C VV
     CHC $VV ; c = $VV               0D VV
     CHZ $VV ; z = $VV               0E VV
-    SSA r   ; a = [page:r]; r++/--  0F 0r (EMP-1000+)
-    SLA r   ; [page:r] = a; r++/--  0F 1r (EMP-1000+)
+    SSA r   ; [alter:r] = a; r++/-- 0F 0r (EMP-1000+)
+    SLA r   ; a = [alte2:r]; r++/-- 0F 1r (EMP-1000+)
+    PG2 $VV ; alter = 0xVV          10 VV
+    PG3 $VV ; alte2 = 0xVV          11 VV

@@ -11,7 +11,8 @@ module cpu #(
     input              clk,
     input              rst,
     output reg         ix,
-    output reg         jf
+    output reg         jf,
+    output reg         ir
 );
 
 // registers
@@ -23,10 +24,11 @@ reg [7:0]   xr;
 reg [7:0]   yr;
 reg [7:0]   zr;
 reg [7:0]   fr; // flags
-reg         ir; // in reading
 reg [7:0]   tr; // tmp
 reg         b_rec;
 reg [8:0]   ofr;
+reg [7:0]   altpr;
+reg [7:0]   alt2r;
 
 // flags
 wire        rcf; // carry flag
@@ -37,6 +39,7 @@ wire [3:0]  reg_r  = ins[3:0];
 wire [7:0]  imm_vv = ins[7:0];
 
 function [7:0] getReg(input [3:0] id);
+begin
     case (id)
     4'h0: getReg = ar;
     4'h1: getReg = br;
@@ -45,8 +48,19 @@ function [7:0] getReg(input [3:0] id);
     4'h4: getReg = xr;
     4'h5: getReg = yr;
     4'h6: getReg = zr;
+    4'h7: begin 
+        if (MODEL_TYPE >= 1000) begin 
+            getReg = altpr;
+        end
+    end
+    4'h8: begin 
+        if (MODEL_TYPE >= 1000) begin 
+            getReg = alt2r;
+        end
+    end
     default: getReg = 8'h00;
     endcase
+end
 endfunction
 
 task setRegister(input [3:0] id, input [7:0] val);
@@ -59,6 +73,16 @@ begin
     4'h4: xr = val;
     4'h5: yr = val;
     4'h6: zr = val;
+    4'h7: begin
+        if (MODEL_TYPE >= 1000) begin 
+            altpr = val;
+        end
+    end
+    4'h8: begin
+        if (MODEL_TYPE >= 1000) begin 
+            alt2r = val;
+        end
+    end
     endcase
 end
 endtask
@@ -74,6 +98,7 @@ always @(posedge clk or posedge rst) begin
         wex <= 1'b0;
         adr <= 16'h0000;
         wvx <= 8'h00;
+        ir <= 0;
     end else if (exi) begin
         if (rex == 1) rex <= 1'b0;
         if (wex == 1) wex <= 1'b0;
@@ -264,36 +289,60 @@ always @(posedge clk or posedge rst) begin
 
                 8'h0F: begin
                     if (MODEL_TYPE >= 1000) begin
+                        // 0F 0r: SSA r ([alter:r] = a; r++/--)
                         if (ins[7:4] == 4'h0) begin
-                            adr <= {pr, getReg(reg_r)};
+                            adr <= {altpr, getReg(reg_r)};
                             wvx <= ar;
-                            if (fr[6]) 
+                            if (fr[6]) begin
+                                if (getReg(reg_r) == 8'hFF) begin
+                                    altpr = altpr + 1;
+                                end
                                 setRegister(reg_r, getReg(reg_r) + 1);
-                            else 
+                            end
+                            else begin
+                                if (getReg(reg_r) == 8'h00) begin
+                                    altpr = altpr - 1;
+                                end
                                 setRegister(reg_r, getReg(reg_r) - 1);
+                            end
                             wex <= 1'b1;
                             ix <= 1'b1;
                         end
+                        // 0F 1r: SLA r (a = [alte2:r]; r++/--)
                         else if (ins[7:4] == 4'h1) begin
                             b_rec = 0;
-                            adr <= {pr, getReg(reg_r)};
-                            if (fr[6]) 
+                            adr <= {alt2r, getReg(reg_r)};
+                            if (fr[6]) begin
+                                if (getReg(reg_r) == 8'hFF) begin
+                                    alt2r = alt2r + 1;
+                                end
                                 setRegister(reg_r, getReg(reg_r) + 1);
-                            else 
+                            end
+                            else begin
+                                if (getReg(reg_r) == 8'h00) begin
+                                    alt2r = alt2r - 1;
+                                end
                                 setRegister(reg_r, getReg(reg_r) - 1);
+                            end
                             rex <= 1'b1;
                             ir  <= 1;
                         end
-                        else if (ins[7:4] == 4'h2) begin
-                            b_rec = 1;
-                            adr <= {pr, getReg(reg_r)};
-                            if (fr[6]) 
-                                setRegister(reg_r, getReg(reg_r) + 1);
-                            else 
-                                setRegister(reg_r, getReg(reg_r) - 1);
-                            rex <= 1'b1;
-                            ir  <= 1;
-                        end
+                    end
+                end
+
+                // 10 VV: PG2 $VV = (alter = $vv)
+                8'h10: begin
+                    if (MODEL_TYPE >= 1000) begin
+                        ix <= 1'b1;
+                        altpr <= imm_vv;
+                    end
+                end
+
+                // 11 VV: PG3 $VV = (alte2 = $vv)
+                8'h11: begin
+                    if (MODEL_TYPE >= 1000) begin
+                        ix <= 1'b1;
+                        alt2r <= imm_vv;
                     end
                 end
 

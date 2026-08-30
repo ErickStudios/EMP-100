@@ -24,13 +24,22 @@ reset:
 
     STA %p
 
-    PAG $SP_PAG.h
-    CTA $BL_REG.l
+    ;PAG $SP_PAG.h
+    ;CTA $BL_REG.l
 
-    PAG $proce.h
-    BCC $proce.l
+    ;PAG $proce.h
+    ;BCC $proce.l
+
+    CHB $00
+    CHZ $16
+    PG3 $04h
+    PG2 $07h
 
 aloop:
+    SLA %b
+    SSA %z
+
+    STC
     PAG $aloop.h
     BCC $aloop.l
 

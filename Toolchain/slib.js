@@ -112,7 +112,7 @@ export function LineAsm(line, context) {
         return a;
     }
     function getRegOf(name) {
-        return ({A:0,B:1,C:2,P:3,X:4,Y:5,Z:6})[name.toUpperCase()];
+        return ({A:0,B:1,C:2,P:3,X:4,Y:5,Z:6,W:7,M:8})[name.toUpperCase()];
     }
     function getFlagOf(name) {
         return ({C:0,D:6,})[name.toUpperCase()];
@@ -143,11 +143,23 @@ export function LineAsm(line, context) {
         if (nam == 'ORB') {
             return [0x03, [0x5, 'r']];
         }
+        if (nam == 'SSA') {
+            return [0x0F, [0x0, 'r']];
+        }
+        if (nam == 'SLA') {
+            return [0x0F, [0x1, 'r']];
+        }
         if (nam == 'SBB') {
             return [0x03, [0x1, 'r']];
         }
         if (nam == 'PAG') {
             return [0x04, 'n'];
+        }
+        if (nam == 'PG2') {
+            return [0x10, 'n'];
+        }
+        if (nam == 'PG3') {
+            return [0x11, 'n'];
         }
         if (nam == 'STA') {
             return [0x05, [0x00, 'r']];

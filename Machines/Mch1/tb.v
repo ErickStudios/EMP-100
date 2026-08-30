@@ -18,9 +18,10 @@ module tb;
             { ram[pc[14:0]], ram[pc[14:0]+1] } );
     reg  [15:0] sp;
     reg         bl_f; // br link flag
+    wire        ir;
 
     cpu #(
-        .MODEL_TYPE(100)
+        .MODEL_TYPE(1000)
     ) uut (
         .rex(rex),
         .wex(wex),
@@ -31,7 +32,8 @@ module tb;
         .exi(exi),
         .clk(clk),
         .rst(rst),
-        .jf(jf)
+        .jf(jf),
+        .ir(ir)
     );
 
     always #5 clk = ~clk;
@@ -68,6 +70,9 @@ module tb;
                         pc = {ram[sp], ram[sp+1]};
                     end
                 end
+                else if (rex) begin
+                    $display("PC: %h | RAD: %h", pc, adr);
+                end
                 if (jf) begin
                     if (bl_f) begin
                         bl_f = 0;
@@ -78,7 +83,10 @@ module tb;
                     end
                     pc = adr;
                 end
-                else pc = pc + 2;
+                else begin 
+                    if (!ir) 
+                        pc = pc + 2;
+                end
                 exi = 0;
             end
         end
@@ -94,7 +102,7 @@ module tb;
 
         #20 rst = 0;
 
-        #3200 $finish;
+        #6400 $finish;
     end
 
 endmodule
