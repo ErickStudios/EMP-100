@@ -2,13 +2,13 @@
   <img src="EMP100L.svg" alt="Logo" width="300">
 </div>
 
-# EMP-100
-##### Embedded. Markarian. Processor.
+# EMP-Arh
+##### Embedded. Markarian. Processors. Architecture
 
-Un procesador de 8 bits Portatil y pequeño
+Los EMP son procesadores de 8 bits portatiles y simples
 Con un balance entre rendimiento y abstraccion.
 
-Cuenta con 19 instrucciones, incluye acceso extendido
+Cuenta con mas de 19 instrucciones, incluye acceso extendido
 a memoria con paginas de 256 bytes cada una, dando 
 64KB usables que pueden mapearse de manera muy customizada
 
