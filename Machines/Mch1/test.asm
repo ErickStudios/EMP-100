@@ -7,10 +7,6 @@
     BL_REG   equ 0A102h
     RT_REG   equ 0A103h
 
-DR: db 0
-ER: db 0
-HR: db 0
-
 reset:
     CHA $0FFh
     PAG $SP_PAG.h

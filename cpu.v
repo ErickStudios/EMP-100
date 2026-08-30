@@ -24,6 +24,7 @@ reg [7:0]   fr; // flags
 reg         ir; // in reading
 reg [7:0]   tr; // tmp
 reg         b_rec;
+reg [8:0]   ofr;
 
 // flags
 wire        rcf; // carry flag
@@ -136,7 +137,9 @@ always @(posedge clk or posedge rst) begin
                 8'h03: begin
                     // 03 0r: ADC r (a = a + r + CF)
                     if (ins[7:4] == 4'h0) begin
-                        {fr[0], ar} <= ar + getReg(reg_r) + {7'b0, rcf};
+                        ofr = ar + getReg(reg_r) + {7'b0, rcf};
+                        ar <= ofr[7:0];
+                        fr[5] = ofr[8];
                         ix <= 1'b1;
                     end
                     // 03 1r: SBB r (a = a - r + CF)
