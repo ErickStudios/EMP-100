@@ -147,6 +147,26 @@ always @(posedge clk or posedge rst) begin
                         ar <= ar - getReg(reg_r) + {7'b0, rcf};
                         ix <= 1'b1;
                     end
+                    // 03 2r: SHR r (a = a >> r)
+                    else if (ins[7:4] == 4'h2) begin
+                        ar <= ar >> getReg(reg_r);
+                        ix <= 1'b1;
+                    end
+                    // 03 3r: SHL r (a = a << r)
+                    else if (ins[7:4] == 4'h3) begin
+                        ar <= ar << getReg(reg_r);
+                        ix <= 1'b1;
+                    end
+                    // 03 4r: AND r (a = a & r)
+                    else if (ins[7:4] == 4'h4) begin
+                        ar <= ar & getReg(reg_r);
+                        ix <= 1'b1;
+                    end
+                    // 03 5r: ORB r (a = a | r)
+                    else if (ins[7:4] == 4'h5) begin
+                        ar <= ar | getReg(reg_r);
+                        ix <= 1'b1;
+                    end
                 end
 
                 // 04 VV: PAG $VV (page = 0xVV)

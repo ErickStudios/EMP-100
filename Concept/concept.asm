@@ -5,6 +5,10 @@
     STC     ; CF = 1                02 10
     ADC r   ; a = a + r + CF        03 0r
     SBB r   ; a = a - r + CF        03 1r
+    SHR r   ; a = a >> r            03 2r
+    SHL r   ; a = a << r            03 3r
+    AND r   ; a = a & r             03 4r
+
     PAG $VV ; page = 0xVV           04 VV
     STA r   ; [page:r] = a          05 0r
     LDA r   ; a = [page:r]          05 1r

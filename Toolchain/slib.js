@@ -131,6 +131,18 @@ export function LineAsm(line, context) {
         if (nam == 'ADC') {
             return [0x03, [0x0, 'r']];
         }
+        if (nam == 'SHR') {
+            return [0x03, [0x2, 'r']];
+        }
+        if (nam == 'SHL') {
+            return [0x03, [0x3, 'r']];
+        }
+        if (nam == 'AND') {
+            return [0x03, [0x4, 'r']];
+        }
+        if (nam == 'ORB') {
+            return [0x03, [0x5, 'r']];
+        }
         if (nam == 'SBB') {
             return [0x03, [0x1, 'r']];
         }
