@@ -8,7 +8,7 @@
     SHR r   ; a = a >> r            03 2r
     SHL r   ; a = a << r            03 3r
     AND r   ; a = a & r             03 4r
-
+    ORB r   ; a = a | r             03 5r
     PAG $VV ; page = 0xVV           04 VV
     STA r   ; [page:r] = a          05 0r
     LDA r   ; a = [page:r]          05 1r
