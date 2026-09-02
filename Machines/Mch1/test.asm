@@ -17,6 +17,8 @@ reset:
     PAG $SP_PAG.h
     CTA $BL_REG.l
     
+    
+    
     CHA $10
     CHB $10
     PAG $mul.h
@@ -34,7 +36,7 @@ reset:
     CHZ $16
     PG3 $04h
     PG2 $07h
-
+    STD
 aloop:
     SLA %b
     SSA %z

@@ -3,3 +3,6 @@ iverilog -o Machines/Mch1/cpu_sim Machines/Mch1/tb.v cpu.v
 cd Machines/Mch1/
 vvp cpu_sim
 cd ../../
+
+# compilar binarios
+node Toolchain/sbin.js ScratchUnit/testPr.asm ScratchUnit/testPr.dec -d

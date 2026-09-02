@@ -78,7 +78,7 @@ module tb;
                         bl_f = 0;
                         ram[sp] = pc[15:8];
                         ram[sp+1] = pc[7:0];
-                        $display("PC: %h | BLR: pc = %h sp = %h", pc, adr, sp);
+                        //$display("PC: %h | BLR: pc = %h sp = %h", pc, adr, sp);
                         sp = sp - 2;
                     end
                     pc = adr;
